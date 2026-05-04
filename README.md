@@ -121,3 +121,58 @@ PYTHONPATH=src python3 src/main.py
 - If **ambiguous**, the resolver produces **two** English variants (with `male` / `female` injected) and you get **two** French lines (masculine / feminine versions in the UI labels).
 
 If a model directory is missing, the program raises a clear `FileNotFoundError` pointing you back to the training commands above.
+
+---
+
+## Evaluation
+
+### What the evaluation files do
+
+**`src/phase3/evaluator.py`**
+Implements **Evaluation Part 1: Google Translate Gender Bias Baseline**.
+It answers two questions:
+1. How biased is Google Translate alone on gender-ambiguous inputs?
+2. Does our pipeline reduce that bias?
+
+It evaluates both conditions on a filtered subset of the
+[WinoMT benchmark](https://github.com/gabrielStanovsky/mt_gender)
+(en→fr, 400 sentences) and reports four metrics:
+Accuracy, Bias Rate, M:F Ratio, and ΔG.
+This script is **independent of the demo** — it does not modify
+any existing file and is only called explicitly.
+
+**`evaluation_notebook.ipynb`**
+A Google Colab notebook covering the full project workflow:
+- Mounting Google Drive and setting up the environment
+- Training Phase 1 models (`classifier.py` and `localizer.py`)
+- Running the demo end-to-end
+- Running Evaluation Part 1
+
+### How to run the evaluation
+
+**Option A — Run as a script (recommended)**
+```bash
+# From the repo root, after training the Phase 1 models:
+PYTHONPATH=src python src/phase3/evaluator.py
+```
+
+**Option B — Run in Google Colab**
+
+Open `evaluation_notebook.ipynb` in Colab and run the cells
+under **Step 5 — Evaluation Part 1**.
+
+### Outputs
+
+The `outputs/` directory is created automatically on first run.
+Results are saved to:
+outputs/eval_part1_results.json   # per-sentence results
+outputs/eval_part1_table.txt      # formatted metrics table
+
+### Notes
+
+- The **Baseline condition** (Google Translate only) runs
+  without any trained models.
+- The **Pipeline condition** requires trained Phase 1 models.
+  Train them first using the commands in the **Training** section above.
+- WinoMT data is downloaded automatically on first run
+  and cached to `data/winomt_en.txt`.
